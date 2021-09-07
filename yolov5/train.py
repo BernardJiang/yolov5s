@@ -20,6 +20,9 @@ from torch.nn.parallel import DistributedDataParallel as DDP
 from torch.utils.tensorboard import SummaryWriter
 from tqdm import tqdm
 
+# import onnxruntime as ort
+from torch_ort import ORTModule
+
 import test  # import test.py to get mAP after each epoch
 from models.yolo import Model
 from utils.autoanchor import check_anchors

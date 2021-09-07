@@ -3,9 +3,20 @@ import torch
 import sys
 import yaml
 import argparse
+import kqat
+import sys
+import torchvision
+from torch.utils.tensorboard import SummaryWriter
+from torchvision import datasets, transforms
+import numpy as np
+
+sys.path.insert(0, './detection/yolov5/yolov5')
+os.chdir("detection/yolov5/yolov5")
 
 from yolov5.yolov5_runner import Yolov5Runner
 
+# Writer will output to ./runs/ directory by default
+# writer = SummaryWriter()
 
 def save_weight(num_classes): 
     current_path=os.getcwd()
@@ -36,6 +47,19 @@ def export_onnx(input_h, input_w, num_classes):
     model.model[-1].export = True  # set Detect() layer export=True
     y = model(img)  # dry run
 
+
+
+    # for n_iter in range(100):
+    #     writer.add_scalar('Loss/train', np.random.random(), n_iter)
+    #     writer.add_scalar('Loss/test', np.random.random(), n_iter)
+    #     writer.add_scalar('Accuracy/train', np.random.random(), n_iter)
+    #     writer.add_scalar('Accuracy/test', np.random.random(), n_iter)
+
+    # grid = torchvision.utils.make_grid(img)
+    # writer.add_image('images', grid, 0)
+    # writer.add_graph(model, img)
+    # writer.close()    
+
     # ONNX export
     try:
         import onnx
@@ -49,6 +73,16 @@ def export_onnx(input_h, input_w, num_classes):
         print('ONNX export success, saved as %s' % onnx_export_file)
     except Exception as e:
         print('ONNX export failure: %s' % e)
+
+    dataset = kqat.get_distill_dataset(model, (3, onnx_img_h, onnx_img_w), num_batch=1,
+        batch_size=4, num_workers=4, refine_cycle=100)
+    dataset.save("./zeroqyolodata")
+
+    # img, labels = next(iter(dataset))
+    # grid = torchvision.utils.make_grid(img)
+    # writer.add_image('images', grid, 0)
+    # writer.close()    
+
 
 
 if __name__ == '__main__':
@@ -72,8 +106,10 @@ if __name__ == '__main__':
     pt_path=data_dict['pt_path']
     yaml_path=data_dict['yaml_path']
     onnx_export_file = data_dict['onnx_export_file']
-    save_weight(num_classes)
+    # save_weight(num_classes)
     export_onnx(input_h, input_w, num_classes)
+
+
 
 
 

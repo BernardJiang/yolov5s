@@ -7,7 +7,7 @@ yolov5_dir: ./
 path: ./runs/train/exp/weights/best.pt
 yaml_path: ./models/yolov5s-noupsample.yaml
 pt_path: ./yolov5s-noupsample-coco128.pt   # pytorch 1.4
-onnx_export_file: ./yolov5s-noupsample-coco128.onnx
+onnx_export_file: ./yolov5s-noupsample-coco128_zeroq_noclamp.onnx
 
 input_w: 480
 input_h: 256
