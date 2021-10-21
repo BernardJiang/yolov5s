@@ -1,10 +1,11 @@
 import os
 import torch
 import sys
+from torch.onnx import TrainingMode
 import yaml
 import argparse
 import kqat
-import sys
+
 import torchvision
 from torch.utils.tensorboard import SummaryWriter
 from torchvision import datasets, transforms
@@ -12,8 +13,8 @@ import numpy as np
 from PIL import Image
 from numpy import asarray
 
-# sys.path.insert(0, './detection/yolov5/yolov5')
-# os.chdir("detection/yolov5/yolov5")
+sys.path.insert(0, './detection/yolov5/yolov5')
+os.chdir("detection/yolov5/yolov5")
 
 from yolov5.yolov5_runner import Yolov5Runner
 
@@ -67,7 +68,7 @@ def export_onnx(input_h, input_w, num_classes):
         import onnx
         print('\nStarting ONNX export with onnx %s...' % onnx.__version__)
         print('****onnx file****',onnx_export_file)
-        torch.onnx.export(model, img, onnx_export_file, verbose=False, opset_version=11, keep_initializers_as_inputs=True, input_names=['images'], output_names=['classes', 'boxes'] if y is None else ['output'])
+        torch.onnx.export(model, img, onnx_export_file, verbose=False, opset_version=11, keep_initializers_as_inputs=True, input_names=['images'], output_names=['classes', 'boxes'] if y is None else ['output'], training=TrainingMode.PRESERVE)
         # Checks
         onnx_model = onnx.load(onnx_export_file)  # load onnx model
         onnx.checker.check_model(onnx_model)  # check onnx model
@@ -76,8 +77,8 @@ def export_onnx(input_h, input_w, num_classes):
     except Exception as e:
         print('ONNX export failure: %s' % e)
 
-    dataset = kqat.get_distill_dataset(model, (3, onnx_img_h, onnx_img_w), num_batch=4,
-        batch_size=16, num_workers=16, refine_cycle=10000)
+    dataset = kqat.get_distill_dataset(model, (3, onnx_img_h, onnx_img_w), num_batch=1,
+        batch_size=16, num_workers=16, refine_cycle=5000, debug=True)
     dataset.save("./zeroqyolodata")
 
     # img, labels = next(iter(dataset))

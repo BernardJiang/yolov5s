@@ -7,7 +7,7 @@ yolov5_dir: ./
 path: ./runs/train/exp/weights/best.pt
 yaml_path: ./models/yolov5s.yaml
 pt_path: ./yolov5s_v2_state_dict_input05.pt   # pytorch 1.4
-onnx_export_file: ./yolov5s_zeroq_640_debug.onnx
+onnx_export_file: ./yolov5s_zeroq_640_v3.onnx
 
 input_w: 640
 input_h: 640
