@@ -3,6 +3,7 @@ import glob
 import json
 import os
 from pathlib import Path
+import sys
 
 import numpy as np
 import torch
@@ -18,6 +19,8 @@ from utils.metrics import ap_per_class
 from utils.plots import plot_images, output_to_target
 from utils.torch_utils import select_device, time_synchronized
 
+sys.path.insert(0, './detection/yolov5/yolov5')
+os.chdir("detection/yolov5/yolov5")
 
 def test(data,
          weights=None,
@@ -102,6 +105,19 @@ def test(data,
         targets = targets.to(device)
         nb, _, height, width = img.shape  # batch size, channels, height, width
         whwh = torch.Tensor([width, height, width, height]).to(device)
+
+        # save true images.
+    
+        x1 = img.cpu().numpy()
+        x2 = np.moveaxis(x1, 1, -1)  #move from cxhxw to hxwxc
+        print("batch shape ", x2.shape)
+        for j in range(x2.shape[0]):
+            x3 = np.reshape(x2[j], (-1))
+            p = "IMG_{:03d}_{:03d}_{}.txt".format(x2.shape[1], x2.shape[2], Path(paths[j]).name)
+            print(p)
+            img_path = os.path.join('/workspace/develop/detection/coco128/', 'trueimages', p)
+            np.savetxt(img_path, x3, delimiter=",", fmt='%f')
+
 
         # Disable gradients
         with torch.no_grad():
