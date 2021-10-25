@@ -76,9 +76,9 @@ def export_onnx(input_h, input_w, num_classes):
         print('ONNX export success, saved as %s' % onnx_export_file)
     except Exception as e:
         print('ONNX export failure: %s' % e)
-
+    model.name = 'yolov5s'
     dataset = kqat.get_distill_dataset(model, (3, onnx_img_h, onnx_img_w), num_batch=1,
-        batch_size=16, num_workers=16, refine_cycle=5000, debug=True)
+        batch_size=16, num_workers=16, refine_cycle=1000, debug=True)
     dataset.save("./zeroqyolodata")
 
     # img, labels = next(iter(dataset))
